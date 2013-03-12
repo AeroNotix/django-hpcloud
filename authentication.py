@@ -24,7 +24,7 @@ def generate_form_post_key(path, redirect):
         )
 
 def generate_share_url(path, expires=2147483647):
-    hmac_path = "/v1.0/%s/%s" % (settings.TENANT_ID, path)
+    hmac_path = "/v1/%s/%s" % (settings.TENANT_ID, path)
     hmac_body = "%s\n%s\n%s" % ("GET",expires, hmac_path)
     hmac_code = "%s:%s:%s" % (
         settings.TENANT_ID, settings.HP_ACCESS_KEY,
