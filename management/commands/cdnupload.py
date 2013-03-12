@@ -1,35 +1,48 @@
 import os, sys
 from stat import *
+import urllib2
 
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
+from django_hpcloud.authentication import get_auth_token
+
 
 class Command(BaseCommand):
     help = 'Uploads all static content into the HPCloud CDN'
 
     def handle(self, *args, **options):
-        if not args:
-            print "Container name required"
-            return
-
         for directory in settings.STATICFILES_DIRS:
-            print directory
-            for f in list(walktree(directory)):
-                print f
+            process_directory(directory, directory)
 
-def walktree(top):
-    '''recursively descend the directory tree rooted at top,
-       calling the callback function for each regular file'''
-
+def process_directory(basedir, top):
     for f in os.listdir(top):
         pathname = os.path.join(top, f)
         mode = os.stat(pathname).st_mode
         if S_ISDIR(mode):
-            # It's a directory, recurse into it
-            walktree(pathname)
+            create_directory(top, pathname)
+            process_directory(basedir, pathname)
         elif S_ISREG(mode):
-            # It's a file, call the callback function
-            print pathname
-        else:
-            # Unknown file type, print a message
-            print 'Skipping %s' % pathname
+            upload_file(basedir, top, pathname)
+
+def create_directory(top, pathname):
+    base = pathname[len(top)+1:]
+    path = "%s%s/%s" % (settings.OBJECT_STORE_URL, settings.TENANT_ID, base)
+    req = urllib2.Request(path, '')
+    req.add_header("Content-type", "application/directory")
+    req.add_header("X-Auth-Token", get_auth_token())
+    req.get_method = lambda: "PUT"
+    res = urllib2.urlopen(req).read()
+    if res or res == "":
+        print "Created directory: %s" % base
+    else:
+        print res
+
+def upload_file(basedir, top, pathname):
+    base = pathname[len(top)+1:]
+    basedir = top[len(basedir)+1:]
+    path = "%s%s/%s/%s" % (settings.OBJECT_STORE_URL, settings.TENANT_ID, basedir, base)
+    req = urllib2.Request(path, open(pathname).read())
+    req.add_header("X-Auth-Token", get_auth_token())
+    req.get_method = lambda: "PUT"
+    if urllib2.urlopen(req).read() == "":
+        print "Uploaded: %s" % pathname
