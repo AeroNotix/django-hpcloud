@@ -10,11 +10,24 @@ from django.conf import settings
 from django_hpcloud.models import AuthToken
 from django_hpcloud.tzhelpers import Local
 
-def generate_form_post_key(path, redirect):
+def generate_form_post_key(path, redirect,
+                           expires=2147483647,
+                           max_file_size=1073741824,
+                           method='POST'):
+    '''
+    Generates the key for the FormPOST signatures. This is used for the file
+    upload forms.
+
+    :param path: :class:`str` The path of the directory to upload to, this should
+                              not include the name of the file you're uploading.
+    :param expires: :class:`int` The Unix timestamp of the expiry date of the form.
+    :param max_file_size: :class:`int` The maximum file size of the files allowed
+                                       to be uploaded with this form.
+    :param method: :class:`str` The method which the form will be using, defaults to
+                                POST because that's all that's supported but allows
+                                others just in case.
+    '''
     path = "/v1/%s/%s/" % (settings.TENANT_ID, path)
-    method = 'POST'
-    expires = 2147483647
-    max_file_size = 1073741824
     hmac_body = "%s\n%s\n%s\n%s\n%s" % (
         path, redirect, max_file_size, "10", expires,
         )
@@ -24,6 +37,12 @@ def generate_form_post_key(path, redirect):
         )
 
 def generate_share_url(path, expires=2147483647):
+    '''
+    Generates the URL for which you can create a time-sensitive link to any item
+    in your object store.
+
+    :param expires: :class:`int` The Unix timestamp of the expiry date of the form.
+    '''
     hmac_path = "/v1/%s/%s" % (settings.TENANT_ID, path)
     hmac_body = "%s\n%s\n%s" % ("GET",expires, hmac_path)
     hmac_code = "%s:%s:%s" % (
@@ -36,6 +55,10 @@ def generate_share_url(path, expires=2147483647):
     return path
 
 def get_object_list(container):
+    '''Returns a list of objects inside a container.
+
+    :param container: :class:`str` The name of the container to list.
+    '''
     container = "%s%s/%s" % (settings.OBJECT_STORE_URL, settings.TENANT_ID, container)
     req = urllib2.Request(container)
     req.add_header("Content-type", "application/json")
@@ -44,6 +67,10 @@ def get_object_list(container):
     return response.read().split('\n')
 
 def get_auth_token():
+    '''Returns the auth_token currently being used.
+
+    If the auth_token has expired, it will generate a new one and return that.
+    '''
     if AuthToken.objects.all().count() > 0:
         token = AuthToken.objects.all()[0]
         now = datetime.datetime.now(tz=Local)
