@@ -3,12 +3,9 @@ from hashlib import sha1
 from time import time
 import urllib2
 import simplejson
-import datetime
 
 from django.conf import settings
-
 from django_hpcloud.models import AuthToken
-from django_hpcloud.tzhelpers import Local
 
 def generate_form_post_key(path, redirect,
                            expires=2147483647,
@@ -73,9 +70,8 @@ def get_auth_token():
     '''
     if AuthToken.objects.all().count() > 0:
         token = AuthToken.objects.all()[0]
-        now = datetime.datetime.now(tz=Local)
-        if now <= token.expires:
-            return AuthToken.objects.all()[0].token
+        if token.is_valid():
+            return token.token
     AuthToken.objects.all().delete()
     json_data = {
         "auth": {
