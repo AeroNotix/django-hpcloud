@@ -6,6 +6,12 @@ setup(name='django_hpcloud',
       author='Aaron France',
       author_email='aaron.france@hp.com',
       url='http://github.com/AeroNotix/django-hpcloud',
-      package_dir={'django_hpcloud': ''},
-      packages=['django_hpcloud'],
+      package_dir={
+        'django_hpcloud': ''
+        },
+      packages=[
+        'django_hpcloud',
+        'django_hpcloud.management',
+        'django_hpcloud.management.commands',
+        ],
      )
