@@ -11,7 +11,7 @@ from django_hpcloud.models import AuthToken
 from django_hpcloud.tzhelpers import Local
 
 def generate_form_post_key(path, redirect):
-    path = "/v1/%s/testainer/%s/" % (settings.TENANT_ID, path)
+    path = "/v1/%s/%s/" % (settings.TENANT_ID, path)
     method = 'POST'
     expires = 2147483647
     max_file_size = 1073741824
@@ -24,20 +24,21 @@ def generate_form_post_key(path, redirect):
         )
 
 def generate_share_url(path, expires=2147483647):
-    hmac_path = "/v1.0/%s/testainer/%s" % (settings.TENANT_ID, path)
+    hmac_path = "/v1.0/%s/%s" % (settings.TENANT_ID, path)
     hmac_body = "%s\n%s\n%s" % ("GET",expires, hmac_path)
     hmac_code = "%s:%s:%s" % (
         settings.TENANT_ID, settings.HP_ACCESS_KEY,
         hmac.new(settings.HP_SECRET_KEY, hmac_body, sha1).hexdigest()
         )
-    path = "%s%s/testainer/%s?temp_url_sig=%s&temp_url_expires=%s" % (
+    path = "%s%s/%s?temp_url_sig=%s&temp_url_expires=%s" % (
         settings.OBJECT_STORE_URL, settings.TENANT_ID, path,
         hmac_code, expires)
     return path
 
-def get_object_list(path):
-    path = "%s%s/testainer/" % (settings.OBJECT_STORE_URL, settings.TENANT_ID)
-    req = urllib2.Request(path)
+def get_object_list(container):
+    container = "%s%s/%s" % (settings.OBJECT_STORE_URL, settings.TENANT_ID, container)
+    print container
+    req = urllib2.Request(container)
     req.add_header("Content-type", "application/json")
     req.add_header("X-Auth-Token", get_auth_token())
     response = urllib2.urlopen(req)
@@ -48,9 +49,7 @@ def get_auth_token():
         token = AuthToken.objects.all()[0]
         now = datetime.datetime.now(tz=Local)
         if now <= token.expires:
-            print "using old token"
             return AuthToken.objects.all()[0].token
-    print "making new token"
     AuthToken.objects.all().delete()
     json_data = {
         "auth": {
