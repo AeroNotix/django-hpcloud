@@ -37,7 +37,6 @@ def generate_share_url(path, expires=2147483647):
 
 def get_object_list(container):
     container = "%s%s/%s" % (settings.OBJECT_STORE_URL, settings.TENANT_ID, container)
-    print container
     req = urllib2.Request(container)
     req.add_header("Content-type", "application/json")
     req.add_header("X-Auth-Token", get_auth_token())
