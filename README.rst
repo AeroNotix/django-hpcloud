@@ -17,3 +17,25 @@ You need to supply in your settings.py file:
 * CDN_URL
 
 These can be found on your API Keys page.
+
+Using the django-hpcloud module.
+
+The primary benefit so far is being able to transparently access your CDN containers
+via template tags.
+
+When the module is first loaded it queries the HPCloud endpoints for your CDN enabled
+containers. You can then create templates such as:
+
+
+.. code-block html
+
+{% load hpcloud %}
+
+<html>
+  <body><h3>Awesome Gallery</h3>
+  {% for pic in pictures %}
+     <img href="{% cdn container pic.name %}" />
+  {% endfor %}
+  </body>
+</html>
+   
