@@ -9,6 +9,7 @@ from django_hpcloud.authentication import get_auth_token
 
 
 class Command(BaseCommand):
+    args = 'Name of base container to use'
     help = 'Uploads all static content into the HPCloud CDN'
 
     def handle(self, *args, **options):
@@ -66,6 +67,11 @@ class Command(BaseCommand):
         return self.create_directory(path)
 
     def upload_file(self, top, pathname):
+        '''
+        Uploads a file to the ObjectStore using the TTL value defined in the
+        settings file and setting the correct mimetypes.
+        '''
+        # fix path ending to /
         if top[-1] != os.path.sep:
             top = top + os.path.sep
         baseprefix = len(os.path.commonprefix([self.basedir, top]))
@@ -84,4 +90,10 @@ class Command(BaseCommand):
             print "Uploaded: %s" % pathname
 
     def prepare_path(self, path):
-        return "%s%s/%s/%s" % (settings.OBJECT_STORE_URL, settings.TENANT_ID, self.container, path)
+        '''
+        Prepares a path by interpolating all strings into a URL.
+        '''
+        return "%s%s/%s/%s" % (
+            settings.OBJECT_STORE_URL, settings.TENANT_ID,
+            self.container, path
+            )
