@@ -13,7 +13,7 @@ Django Module for interacting with the HPCloud services.
         'django_hpcloud': ''
         },
       license="BSD",
-      platform=["windows", "linux", "mac"],
+      platforms=["windows", "linux", "mac"],
       packages=[
         'django_hpcloud',
         'django_hpcloud.templatetags',
