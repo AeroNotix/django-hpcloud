@@ -39,15 +39,33 @@ When the module is first loaded it queries the HPCloud endpoints for your CDN en
 containers. You can then create templates such as:
 
 
-.. code-block html
+.. code-block:: html
 
-{% load hpcloud %}
+    {% load hpcloud %}
 
-<html>
-  <body><h3>Awesome Gallery</h3>
-  {% for pic in pictures %}
-     <img href="{% cdn container pic.name %}" />
-  {% endfor %}
-  </body>
-</html>
-   
+    <html>
+      <body><h3>Awesome Gallery</h3>
+      {% for pic in pictures %}
+         <img href="{% cdn container pic.name %}" />
+      {% endfor %}
+      </body>
+    </html>
+
+
+Also, from the command line this module provides a django command which helps
+you upload all your static files into the object store.
+
+.. code-block:: bash
+
+   $ python manage.py cdnupload
+    Created directory: css
+    Uploaded: /var/www/project/static/css/bootstrap.css
+    Uploaded: /var/www/project/static/css/bootstrap-responsive.min.css
+    Uploaded: /var/www/project/static/css/bootstrap.min.css
+    Uploaded: /var/www/project/static/css/bootstrap-responsive.css
+    Created directory: img
+    Uploaded: /var/www/project/static/img/glyphicons-halflings.png
+    Uploaded: /var/www/project/static/img/glyphicons-halflings-white.png
+    Created directory: js
+    Uploaded: /var/www/project/static/js/bootstrap.js
+    Uploaded: /var/www/project/static/js/bootstrap.min.js
