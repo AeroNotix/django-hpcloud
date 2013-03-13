@@ -11,6 +11,7 @@ setup(name='django_hpcloud',
         },
       packages=[
         'django_hpcloud',
+        'django_hpcloud.templatetags',
         'django_hpcloud.management',
         'django_hpcloud.management.commands',
         ],
