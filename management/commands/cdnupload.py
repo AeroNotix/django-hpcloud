@@ -19,13 +19,16 @@ def process_directory(basedir, top):
         pathname = os.path.join(top, f)
         mode = os.stat(pathname).st_mode
         if S_ISDIR(mode):
-            create_directory(top, pathname)
+            create_directory(basedir, top, pathname)
             process_directory(basedir, pathname)
         elif S_ISREG(mode):
             upload_file(basedir, top, pathname)
 
-def create_directory(top, pathname):
-    base = pathname[len(top)+1:]
+def create_directory(basedir, top, pathname):
+    if top[-1] != os.path.sep:
+        top = top + os.path.sep
+    baseprefix = len(os.path.commonprefix([basedir, top]))
+    base = pathname[baseprefix:]
     path = "%s%s/%s" % (settings.OBJECT_STORE_URL, settings.TENANT_ID, base)
     req = urllib2.Request(path, '')
     req.add_header("Content-type", "application/directory")
@@ -38,9 +41,11 @@ def create_directory(top, pathname):
         print res
 
 def upload_file(basedir, top, pathname):
-    base = pathname[len(top)+1:]
-    basedir = top[len(basedir)+1:]
-    path = "%s%s/%s/%s" % (settings.OBJECT_STORE_URL, settings.TENANT_ID, basedir, base)
+    if top[-1] != os.path.sep:
+        top = top + os.path.sep
+    baseprefix = len(os.path.commonprefix([basedir, top]))
+    base = pathname[baseprefix:]
+    path = "%s%s/%s" % (settings.OBJECT_STORE_URL, settings.TENANT_ID, base)
     req = urllib2.Request(path, open(pathname).read())
     req.add_header("X-Auth-Token", get_auth_token())
     req.get_method = lambda: "PUT"
