@@ -27,6 +27,7 @@ to the CDN is the number of seconds they will be cached for.
         ".js": "1"
     }
 
+
 This would make css files last for 900 seconds (15 minutes) in the cache and
 Javascript files for only a second (which means they will never be cached.)
 
