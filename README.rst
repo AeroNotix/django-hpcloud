@@ -22,6 +22,7 @@ between extension types and their "Time To Live" in seconds, which, when uploade
 to the CDN is the number of seconds they will be cached for.
 
 .. code-block:: python
+
     HPCLOUD_TTL_MAP = {
         ".css": "900",
         ".js": "1"
