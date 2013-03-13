@@ -58,7 +58,8 @@ class Command(BaseCommand):
         mimetype = mimetypes.types_map.get(ext)
         if mimetype:
             req.add_header("Content-Type", mimetype)
-
+        # default 24 hours
+        req.add_header("X-TTL", self.settings.get(ext, "86400"))
         req.add_header("X-Auth-Token", get_auth_token())
         req.get_method = lambda: "PUT"
         if urllib2.urlopen(req).read() == "":

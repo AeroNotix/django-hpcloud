@@ -15,8 +15,20 @@ You need to supply in your settings.py file:
 * OBJECT_STORE_URL
 * REGION_URL
 * CDN_URL
+* HPCLOUD_TTL_MAP
 
-These can be found on your API Keys page.
+Most of these can be found on your API Keys page. The HPCLOUD_TTL_MAP is a map
+between extension types and their "Time To Live" in seconds, which, when uploaded
+to the CDN is the number of seconds they will be cached for.
+
+.. code-block:: python
+    HPCLOUD_TTL_MAP = {
+        ".css": "900",
+        ".js": "1"
+    }
+
+This would make css files last for 900 seconds (15 minutes) in the cache and
+Javascript files for only a second (which means they will never be cached.)
 
 Using the django-hpcloud module.
 
