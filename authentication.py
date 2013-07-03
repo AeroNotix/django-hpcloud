@@ -56,12 +56,12 @@ def get_object_list(container):
 
     :param container: :class:`str` The name of the container to list.
     '''
-    container = "%s%s/%s" % (settings.OBJECT_STORE_URL, settings.TENANT_ID, container)
+    container = "%s%s/%s?format=json" % (settings.OBJECT_STORE_URL, settings.TENANT_ID, container)
     req = urllib2.Request(container)
     req.add_header("Content-type", "application/json")
     req.add_header("X-Auth-Token", get_auth_token())
     response = urllib2.urlopen(req)
-    return response.read().split('\n')
+    return simplejson.loads(response.read())
 
 def get_auth_token():
     '''Returns the auth_token currently being used.
